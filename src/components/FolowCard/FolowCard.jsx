@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
 import {
   StyledButton,
   CardBox,
@@ -12,13 +13,34 @@ import {
 } from './FolowCard.styled';
 
 const FolowCard = ({ tweets, followers, followStatus, avatar, user }) => {
-  const [state, setState] = useState({
-    tweets,
-    followers,
-    followStatus,
-    avatar,
-    user,
+  // Initialize state with saved state from local storage, or default values if there is no saved state
+  const [state, setState] = useState(() => {
+    try {
+      const savedState = localStorage.getItem('state');
+      if (savedState) {
+        return JSON.parse(savedState);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    // Default values if there is no saved state
+    return {
+      tweets,
+      followers,
+      followStatus,
+      avatar,
+      user,
+    };
   });
+
+  useEffect(() => {
+    // Save state to local storage when the component mounts or updates
+    try {
+      localStorage.setItem('state', JSON.stringify(state));
+    } catch (error) {
+      console.error(error);
+    }
+  }, [state]); // Only save state when it changes
 
   const setFollowStatus = followStatus => {
     setState(prevState => ({
@@ -29,7 +51,6 @@ const FolowCard = ({ tweets, followers, followStatus, avatar, user }) => {
         : prevState.followers - 1,
     }));
   };
-
   return (
     <>
       <CardBox>
